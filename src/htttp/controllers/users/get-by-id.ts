@@ -22,7 +22,7 @@ export async function getUserById(
   try {
     const { user } = await getUserByIdUseCase.execute({ userId })
 
-    reply.status(201).send({ user })
+    reply.status(200).send({ user })
   } catch (error) {
     if (error instanceof InvalidUserError) {
       return reply.status(400).send({ message: error.message })

@@ -9,7 +9,7 @@ export class InMemoryUsersRepository implements UsersRepository {
       throw new Error('Provide a user type')
     }
     const user = {
-      id: randomUUID(),
+      id: data.id ?? randomUUID(),
       name: data.name,
       email: data.email,
       registration: data.registration,

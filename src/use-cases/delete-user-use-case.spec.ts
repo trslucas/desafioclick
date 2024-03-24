@@ -42,7 +42,5 @@ describe('Delete User Use Case', () => {
     const deletedUser = await usersRepository.findById(user.id)
 
     expect(deletedUser).toBeNull()
-
-    console.log(deletedUser)
   })
 })
