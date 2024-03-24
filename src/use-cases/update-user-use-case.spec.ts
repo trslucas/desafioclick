@@ -1,34 +1,34 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { GetUserUseCase } from './get-user-use-case'
+
 import { InMemoryUsersRepository } from '../repository/in-memory/in-memory-users-repository'
+import { UpdateUserUseCase } from './update-user-use-case'
 
 let usersRepository: InMemoryUsersRepository
-let sut: GetUserUseCase
+let sut: UpdateUserUseCase
 
-describe('Get User Use Case', () => {
+describe('Update User Use Case', () => {
   beforeEach(() => {
     usersRepository = new InMemoryUsersRepository()
-    sut = new GetUserUseCase(usersRepository)
+    sut = new UpdateUserUseCase(usersRepository)
   })
 
-  it('should be able to get a user profile', async () => {
-    const createdUser = await usersRepository.create({
+  it('should be able to update a user data', async () => {
+    const firstUser = await usersRepository.create({
       name: 'Lucas Trindade',
       email: 'trslucas@outlook.com',
       birth_date: new Date('1993-10-20'),
-      registration: 1291,
+      registration: 1,
       user_type: 'TEACHER',
     })
-    // Executa o caso de uso para obter o perfil do usuário
+
     const { user } = await sut.execute({
-      userId: createdUser.id,
+      userId: firstUser.id,
+      email: 'lucas@thummi.global',
+      user_type: 'STUDENT',
     })
 
-    expect(user).toBeDefined()
-
-    // Verifica se o id é uma string se estiver definido
-
-    console.log(user)
+    expect(user.email).toEqual('lucas@thummi.global')
+    expect(user.user_type).toEqual('STUDENT')
     expect(user.name).toEqual('Lucas Trindade')
   })
 })

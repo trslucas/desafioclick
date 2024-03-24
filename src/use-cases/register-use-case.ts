@@ -1,5 +1,7 @@
 import { User, UserType } from '@prisma/client'
 import { UsersRepository } from '../repository/user-repository'
+import { InvalidUserTypeError } from './errors/invalid-user-type-error'
+import { InvalidCredentialsError } from './errors/invalid-credentials-error'
 
 interface RegisterUseCaseRequest {
   name: string
@@ -31,7 +33,7 @@ export class RegisterUseCase {
     const userType: UserType = userTypeMap[user_type]
 
     if (!userType) {
-      throw new Error('Invalid user type')
+      throw new InvalidUserTypeError()
     }
 
     const user = await this.usersRepository.create({
@@ -41,6 +43,10 @@ export class RegisterUseCase {
       birth_date,
       user_type: userType,
     })
+
+    if (!user) {
+      throw new InvalidCredentialsError()
+    }
 
     return { user }
   }

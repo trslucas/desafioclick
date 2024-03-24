@@ -1,4 +1,4 @@
-import { Prisma, User } from '@prisma/client'
+import { Prisma, User, UserType } from '@prisma/client'
 import { UsersRepository } from '../user-repository'
 import { randomUUID } from 'crypto'
 
@@ -21,6 +21,44 @@ export class InMemoryUsersRepository implements UsersRepository {
     this.users.push(user)
 
     return user
+  }
+
+  async update(userId: string, data: Prisma.UserUpdateInput): Promise<User> {
+    if (!userId) {
+      throw new Error('User not found')
+    }
+
+    const userIndex = this.users.findIndex((user) => user.id === userId)
+
+    if (userIndex === -1) {
+      throw new Error('User not found')
+    }
+
+    const currentUser = this.users[userIndex]
+
+    const updatedUser: User = {
+      ...currentUser,
+      id: userId,
+      name: data.name === 'string' ? data.name : currentUser.name,
+      email: typeof data.email === 'string' ? data.email : currentUser.email,
+      registration:
+        typeof data.registration === 'number'
+          ? data.registration
+          : currentUser.registration,
+      birth_date:
+        data.birth_date instanceof Date
+          ? data.birth_date
+          : currentUser.birth_date,
+      user_type:
+        typeof data.user_type === 'string'
+          ? (data.user_type as UserType)
+          : currentUser.user_type,
+      created_at: currentUser.created_at,
+    }
+
+    this.users[userIndex] = updatedUser
+
+    return updatedUser
   }
 
   async findById(userId: string) {

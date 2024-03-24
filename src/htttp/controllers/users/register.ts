@@ -3,6 +3,7 @@ import { FastifyReply, FastifyRequest } from 'fastify'
 import { PrismaUsersRepository } from '../../../repository/prisma/prisma-users-repository'
 import { RegisterUseCase } from '../../../use-cases/register-use-case'
 import { z } from 'zod'
+import { InvalidCredentialsError } from '../../../use-cases/errors/invalid-credentials-error'
 
 export async function register(request: FastifyRequest, reply: FastifyReply) {
   const usersRepository = new PrismaUsersRepository()
@@ -30,6 +31,8 @@ export async function register(request: FastifyRequest, reply: FastifyReply) {
 
     reply.status(201).send({ user })
   } catch (error) {
-    return reply.status(400).send({ message: error.message })
+    if (error instanceof InvalidCredentialsError) {
+      return reply.status(400).send({ message: error.message })
+    }
   }
 }

@@ -3,6 +3,7 @@ import { FastifyReply, FastifyRequest } from 'fastify'
 import { PrismaUsersRepository } from '../../../repository/prisma/prisma-users-repository'
 import { z } from 'zod'
 import { DeleteUserUseCase } from '../../../use-cases/delete-user-use-case'
+import { InvalidUserError } from '../../../use-cases/errors/invalid-user-id-error'
 
 export async function deleteUser(request: FastifyRequest, reply: FastifyReply) {
   const usersRepository = new PrismaUsersRepository()
@@ -21,6 +22,7 @@ export async function deleteUser(request: FastifyRequest, reply: FastifyReply) {
 
     reply.status(200).send({})
   } catch (error) {
-    return reply.status(400).send({ message: error.message })
+    if (error instanceof InvalidUserError)
+      return reply.status(400).send({ message: error.message })
   }
 }

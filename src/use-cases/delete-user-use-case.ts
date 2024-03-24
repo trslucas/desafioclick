@@ -1,4 +1,5 @@
 import { UsersRepository } from '../repository/user-repository'
+import { InvalidUserError } from './errors/invalid-user-id-error'
 
 interface DeleteUserUseCaseRequest {
   userId: string
@@ -9,7 +10,7 @@ export class DeleteUserUseCase {
 
   async execute({ userId }: DeleteUserUseCaseRequest): Promise<void> {
     if (!userId) {
-      throw new Error('User not found')
+      throw new InvalidUserError()
     }
     await this.usersRepository.delete(userId)
   }

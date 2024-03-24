@@ -1,5 +1,6 @@
 import { User } from '@prisma/client'
 import { UsersRepository } from '../repository/user-repository'
+import { InvalidUserError } from './errors/invalid-user-id-error'
 
 interface GetUserUseCaseRequest {
   userId: string
@@ -18,8 +19,9 @@ export class GetUserUseCase {
     const user = await this.usersRepository.findById(userId)
 
     if (!user) {
-      throw new Error('User not found')
+      throw new InvalidUserError()
     }
+
     return {
       user,
     }
