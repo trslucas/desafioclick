@@ -22,4 +22,28 @@ export class InMemoryUsersRepository implements UsersRepository {
 
     return user
   }
+
+  async findById(userId: string) {
+    if (!userId) {
+      throw new Error('User not found')
+    }
+    const user = this.users.find((user) => user.id === userId)
+
+    if (!user) {
+      return null
+    }
+    return user
+  }
+
+  async delete(userId: string) {
+    const user = this.users.findIndex((user) => user.id === userId)
+
+    this.users.splice(1, user)
+  }
+
+  async findMany() {
+    const users = this.users
+
+    return users
+  }
 }
