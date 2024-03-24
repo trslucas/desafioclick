@@ -16,7 +16,7 @@ export async function updateUser(request: FastifyRequest, reply: FastifyReply) {
     birth_date: z.coerce.date().optional(),
     email: z.string().optional(),
     registration: z.number().optional(),
-    user_type: z.string().optional(),
+    user_type: z.enum(['TEACHER', 'STUDENT']).optional(),
   })
 
   const { birth_date, email, registration, user_type, name } =

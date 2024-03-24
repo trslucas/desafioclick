@@ -1,6 +1,7 @@
 import { Prisma } from '@prisma/client'
 import { UsersRepository } from '../user-repository'
 import { prisma } from '../../lib/prisma'
+import { InvalidUserError } from '../../use-cases/errors/invalid-user-id-error'
 
 export class PrismaUsersRepository implements UsersRepository {
   async create(data: Prisma.UserCreateInput) {
@@ -23,6 +24,9 @@ export class PrismaUsersRepository implements UsersRepository {
   }
 
   async findById(userId: string) {
+    if (!userId) {
+      throw new InvalidUserError()
+    }
     const user = await prisma.user.findUnique({
       where: {
         id: userId,
@@ -33,6 +37,15 @@ export class PrismaUsersRepository implements UsersRepository {
   }
 
   async delete(userId: string) {
+    if (!userId) {
+      throw new InvalidUserError()
+    }
+
+    const user = await this.findById(userId)
+
+    if (!user) {
+      throw new InvalidUserError()
+    }
     await prisma.user.delete({
       where: {
         id: userId,
