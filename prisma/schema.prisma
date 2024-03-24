@@ -18,6 +18,6 @@ model User {
   email        String
   registration Int
   birth_date   DateTime
-  usert_type   UserType @default(STUDENT)
+  user_type    UserType @default(STUDENT)
   created_at   DateTime @default(now())
 }
