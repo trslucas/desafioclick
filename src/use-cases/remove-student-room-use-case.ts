@@ -1,6 +1,7 @@
 import { ClassRepository } from '../repository/class-repository'
 
 import { UsersRepository } from '../repository/user-repository'
+import { InvalidUserError } from './errors/invalid-user-id-error'
 
 interface RemoveStudentRoomUseCaseRequest {
   studentId: string
@@ -17,15 +18,12 @@ export class RemoveStudentRoomUseCase {
     studentId,
     ownerId,
   }: RemoveStudentRoomUseCaseRequest): Promise<void> {
-    if (!ownerId) {
-      throw new Error()
+    const teacher = await this.usersRepository.findById(ownerId)
+
+    if (!teacher || teacher.user_type !== 'TEACHER') {
+      throw new InvalidUserError()
     }
 
-    await this.classRepository.removeStudent(ownerId, studentId)
-
-    // if (userAlreadyDeleted) {
-    //   console.log(userAlreadyDeleted)
-    //   throw new InvalidUserError()
-    // }
+    await this.classRepository.removeStudent(teacher.id, studentId)
   }
 }

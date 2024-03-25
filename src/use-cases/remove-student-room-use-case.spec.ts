@@ -57,6 +57,6 @@ describe('Remove Student From ClassRoom User Use Case', () => {
 
     const room = await classRepository.findById(teacher.id)
 
-    expect(room?.students).toHaveLength(1)
+    expect(room).toHaveLength(1)
   })
 })

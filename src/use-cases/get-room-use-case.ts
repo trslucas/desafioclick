@@ -8,7 +8,7 @@ interface GetRoomUseCaseRequest {
 }
 
 interface GetRoomUseCaseResponse {
-  room: Class
+  room: Class[]
 }
 
 export class GetRoomUseCase {
@@ -20,18 +20,18 @@ export class GetRoomUseCase {
   async execute({
     userId,
   }: GetRoomUseCaseRequest): Promise<GetRoomUseCaseResponse> {
-    const user = await this.usersRepository.findById(userId)
+    const teacher = await this.usersRepository.findById(userId)
 
-    if (!user) {
+    if (!teacher || teacher.user_type !== 'TEACHER') {
       throw new InvalidUserError()
     }
 
-    const room = await this.classRepository.findById(userId)
+    const rooms = await this.classRepository.findById(teacher.id)
 
-    if (!room) {
+    if (!rooms || rooms.length === 0) {
       throw new InvalidUserError()
     }
 
-    return { room }
+    return { room: rooms }
   }
 }

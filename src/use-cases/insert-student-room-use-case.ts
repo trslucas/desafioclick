@@ -3,6 +3,7 @@ import { Class } from '@prisma/client'
 import { UserAlreadyExistisError } from './errors/user-already-exists-error'
 import { UsersRepository } from '../repository/user-repository'
 import { ExceededCapacityTypeError } from './errors/max-capacity-error'
+import { InvalidResourceError } from './errors/invalid-resource-error'
 
 interface InsertStudentRoomUseCaseRequest {
   studentId: string
@@ -27,27 +28,41 @@ export class InsertUserInRoomUseCase {
       throw new Error()
     }
 
-    const room = await this.classRepository.insertStudent(ownerId, studentId)
+    const insertRoomAvaiable = await this.classRepository.insertStudent(
+      ownerId,
+      studentId,
+    )
 
-    const maxStudents = Number(room?.students.length)
-    const roomCapacity = Number(room?.capacity)
+    const maxStudents = Number(insertRoomAvaiable?.students.length)
+    const roomCapacity = Number(insertRoomAvaiable?.capacity)
 
     const exceedLimit = roomCapacity < maxStudents
+
+    const checkAvailability = roomCapacity === maxStudents
+
+    if (checkAvailability) {
+      if (insertRoomAvaiable) {
+        insertRoomAvaiable.isAvaiable = false
+      }
+    }
 
     if (exceedLimit) {
       throw new ExceededCapacityTypeError()
     }
 
-    if (!room) {
-      throw new Error()
+    if (!insertRoomAvaiable) {
+      throw new InvalidResourceError()
     }
 
-    const test = room?.students?.filter((student) => student.id === studentId)
+    const test = insertRoomAvaiable?.students?.filter(
+      (student) => student.id === studentId,
+    )
     const already = test.length >= 2
 
     if (already) {
       throw new UserAlreadyExistisError()
     }
-    return { room }
+
+    return { room: insertRoomAvaiable }
   }
 }

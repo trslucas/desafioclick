@@ -19,7 +19,9 @@ export class InMemoryClassRepository implements ClassRepository {
       students: [],
     }
 
-    this.rooms.push(room)
+    if (room) {
+      this.rooms.push(room)
+    }
 
     return room
   }
@@ -29,13 +31,13 @@ export class InMemoryClassRepository implements ClassRepository {
       throw new InvalidUserError()
     }
 
-    const room = this.rooms.find((item) => item.owner_id === userId)
+    const rooms = this.rooms.filter((item) => item.owner_id === userId)
 
-    if (!room) {
-      return null
+    if (!rooms.length) {
+      return null // ou pode retornar um array vazio [] se preferir
     }
 
-    return room
+    return rooms
   }
 
   async insertStudent(ownerId: string, userId: string) {
@@ -61,7 +63,12 @@ export class InMemoryClassRepository implements ClassRepository {
     if (!ownerId) {
       throw new Error('Invalid owner ID')
     }
+
     const room = this.rooms.find((item) => item.owner_id === ownerId)
+
+    if (room?.owner_id !== ownerId) {
+      throw new Error('Unauthorized')
+    }
 
     const studentIndex = room?.students.findIndex(
       (student) => student.id === studentId,
@@ -72,5 +79,46 @@ export class InMemoryClassRepository implements ClassRepository {
     }
 
     room?.students.splice(Number(studentIndex), 1)
+  }
+
+  async listStudentsByRoom(ownerId: string, classId: string) {
+    const room = this.rooms.find(
+      (item) => item.owner_id === ownerId && item.id === classId,
+    )
+
+    if (!room) {
+      return null
+    }
+
+    return room
+  }
+
+  async deleteClassRoom(ownerId: string, classId: string): Promise<void> {
+    const room = this.rooms.find((item) => item.owner_id === ownerId)
+
+    if (room?.owner_id !== ownerId) {
+      throw new Error('Unauthorized')
+    }
+    const roomIndex = this.rooms.findIndex(
+      (room) => room.id === classId && room.owner_id === ownerId,
+    )
+
+    if (roomIndex === -1) {
+      throw new Error('Classroom not found')
+    }
+
+    this.rooms.splice(roomIndex, 1)
+  }
+
+  async getClassRoomsByStudent(studentId: string) {
+    const studentRooms = this.rooms.filter((room) =>
+      room.students.some((student) => student.id === studentId),
+    )
+
+    if (!studentRooms.length) {
+      return null // ou pode retornar um array vazio [] se preferir
+    }
+
+    return studentRooms
   }
 }
