@@ -20,4 +20,37 @@ model User {
   birth_date   DateTime
   user_type    UserType
   created_at   DateTime @default(now())
+  Teacher      Teacher?
+  Student      Student?
+
+  @@map("users")
+}
+
+model Teacher {
+  id     String  @id @default(uuid())
+  user   User?   @relation(fields: [userId], references: [id])
+  userId String? @unique
+  Class  Class[]
+
+  @@map("teachers")
+}
+
+model Student {
+  id      String  @id @default(uuid())
+  user    User?   @relation(fields: [userId], references: [id])
+  userId  String? @unique
+  Class   Class?  @relation(fields: [classId], references: [id])
+  classId String?
+
+  @@map("students")
+}
+
+model Class {
+  id           String    @id @default(uuid())
+  class_number Int
+  owner        String
+  owner_id     Teacher   @relation(fields: [owner], references: [id])
+  capacity     Int
+  isAvaiable   Boolean
+  students     Student[]
 }

@@ -9,6 +9,22 @@ export class PrismaUsersRepository implements UsersRepository {
       data,
     })
 
+    if (user.user_type === 'STUDENT') {
+      await prisma.student.create({
+        data: {
+          userId: user.id,
+        },
+      })
+    }
+
+    if (user.user_type === 'TEACHER') {
+      await prisma.teacher.create({
+        data: {
+          userId: user.id,
+        },
+      })
+    }
+
     return user
   }
 

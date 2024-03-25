@@ -7,11 +7,11 @@
 [x] RF06: Permitir que professor edite seus dados de cadastro
 [x] RF07: Permitir que professor exclua seus dados de cadastro
 [x] RF08: Permitir que professor consulte seus dados de cadastro
-[] RF09: Permitir que professor cadastre uma nova sala
+[x] RF09: Permitir que professor cadastre uma nova sala
 [] RF10: Permitir que professor edite os dados de uma sala
 [] RF11: Permitir que professor exclua os dados de uma sala
-[] RF12: Permitir que professor consulte os dados de uma sala
-[] RF13: Permitir que professor aloque um aluno em uma sala
+[x] RF12: Permitir que professor consulte os dados de uma sala
+[x] RF13: Permitir que professor aloque um aluno em uma sala
 [] RF14: Permitir que professor remova o aluno de uma sala
 [] RF15: Permitir que professor consulte todos os alunos de uma sala
 [] RF16: Permitir que aluno consulte todas as salas que deverá comparecer
