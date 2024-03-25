@@ -14,7 +14,7 @@
 [x] RF13: Permitir que professor aloque um aluno em uma sala
 [x] RF14: Permitir que professor remova o aluno de uma sala
 [x] RF15: Permitir que professor consulte todos os alunos de uma sala
-[] RF16: Permitir que aluno consulte todas as salas que deverá comparecer
+[x] RF16: Permitir que aluno consulte todas as salas que deverá comparecer
 
 ## REGRAS DE NEGÓCIO 
 
@@ -24,4 +24,4 @@
 [x] RN03 (RF13): A sala não pode possuir o mesmo aluno mais de uma vez.
 [x] RN04 (RF13): A sala não pode exceder sua capacidade de alunos.
 [x] RN05 (RF13): O professor não poderá alocar um aluno para uma sala que não tenha sido criada por ele.
-[] RN06 (RF16): Deverá ser retornado: Nome do aluno, array de objetos com nome do professor e o número da sala.
+[x] RN06 (RF16): Deverá ser retornado: Nome do aluno, array de objetos com nome do professor e o número da sala.
