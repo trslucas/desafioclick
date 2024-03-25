@@ -54,7 +54,6 @@ describe('Get Room Use Case', () => {
       studentId: student.id,
     })
 
-    console.log(rooms)
     expect(rooms).toHaveLength(2)
   })
 })

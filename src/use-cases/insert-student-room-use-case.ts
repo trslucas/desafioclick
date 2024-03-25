@@ -43,7 +43,6 @@ export class InsertUserInRoomUseCase {
     const checkAvailability = roomCapacity === maxStudents
 
     if (canInsertUser && insertRoomAvaiable?.capacity) {
-      console.log(roomCapacity - maxStudents)
       insertRoomAvaiable.capacity = roomCapacity - maxStudents
     }
 

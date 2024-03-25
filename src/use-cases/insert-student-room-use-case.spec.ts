@@ -62,8 +62,6 @@ describe('Insert User in Room Use Case', () => {
       ownerId: classRoom.id,
     })
 
-    console.log(room)
-
     expect(room.id).toEqual(expect.any(String))
     expect(classRoom.owner_id).toEqual(teacher.id)
     expect(student.user_type).toEqual('STUDENT')
