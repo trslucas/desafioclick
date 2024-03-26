@@ -47,11 +47,15 @@ describe('Insert User in Room Use Case', () => {
       isAvaiable: true,
     })
 
-    // Insira o aluno na sala de aula
     const { room } = await sut.execute({
       studentId: student.id,
-      ownerId: classRoom.id, // Usar o ID da sala de aula como ownerId
+      ownerId: classRoom.teacher_id,
+      classId: classRoom.id,
     })
+
+    // const test = room.students.find((stId) => stId.id === student.id)
+
+    // console.log(test?.id)
 
     expect(room.teacher_id).toEqual(teacher.id)
     expect(room.students).toHaveLength(1)
@@ -103,11 +107,13 @@ describe('Insert User in Room Use Case', () => {
     const room1 = await sut.execute({
       studentId: student.id,
       ownerId: classRoom1.id,
+      classId: classRoom1.id,
     })
 
     const room2 = await sut.execute({
       studentId: student.id,
       ownerId: classRoom2.id,
+      classId: classRoom2.id,
     })
 
     const insertedStudent1 = room1.room.students.some(
@@ -161,6 +167,7 @@ describe('Insert User in Room Use Case', () => {
       sut.execute({
         studentId: student.id,
         ownerId: otherTeacher.id,
+        classId: classRoom.teacher_id,
       }),
     ).rejects.toBeInstanceOf(InvalidResourceError)
 
@@ -198,6 +205,7 @@ describe('Insert User in Room Use Case', () => {
     const promise1 = sut.execute({
       studentId: student.id,
       ownerId: classRoom.id,
+      classId: classRoom.id,
     })
 
     await expect(promise1).resolves.toBeTruthy()
@@ -205,6 +213,7 @@ describe('Insert User in Room Use Case', () => {
     const promise2 = sut.execute({
       studentId: student.id,
       ownerId: classRoom.id,
+      classId: classRoom.id,
     })
 
     await expect(promise2).rejects.toBeInstanceOf(UserAlreadyExistisError)
@@ -249,12 +258,14 @@ describe('Insert User in Room Use Case', () => {
     await sut.execute({
       studentId: student.id,
       ownerId: classRoom.id,
+      classId: classRoom.id,
     })
 
     await expect(() =>
       sut.execute({
         studentId: otherStudent.id,
         ownerId: classRoom.id,
+        classId: classRoom.id,
       }),
     ).rejects.toBeInstanceOf(ExceededCapacityTypeError)
   })

@@ -23,18 +23,28 @@ export class GetStudentRoomsUseCase {
   }: GetStudentRoomsUseCaseRequest): Promise<GetStudenetRoomsUseCaseResponse> {
     const student = await this.usersRepository.findById(studentId)
 
-    if (!student || student?.user_type !== 'STUDENT') {
+    if (!student || student.user_type !== 'STUDENT') {
       throw new InvalidUserError()
     }
 
-    const room = await this.classRepository.getClassRoomsByStudent(student?.id)
+    const rooms = await this.classRepository.getClassRoomsByStudent(student.id)
 
-    if (!room) {
+    if (!rooms) {
       throw new InvalidResourceError()
     }
 
+    for (const room of rooms) {
+      if (room.teacher_id) {
+        // Verifica se o teacher_id não é null
+        const teacherDetails = await this.usersRepository.findById(
+          room.teacher_id,
+        )
+        room.teacher_id = teacherDetails ? teacherDetails.name : 'Unknown' // Substitui o teacher_id pelo nome do professor
+      }
+    }
+
     return {
-      rooms: room,
+      rooms,
     }
   }
 }

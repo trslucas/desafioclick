@@ -30,6 +30,7 @@ export async function register(request: FastifyRequest, reply: FastifyReply) {
 
     reply.status(201).send({ room })
   } catch (error) {
+    console.log(error)
     if (error instanceof Error) {
       return reply.status(400).send({ message: error.message })
     }

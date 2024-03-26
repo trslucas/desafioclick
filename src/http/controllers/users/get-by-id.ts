@@ -23,6 +23,7 @@ export async function getUserById(
 
     reply.status(200).send({ user })
   } catch (error) {
+    console.log(error)
     if (error instanceof Error) {
       return reply.status(400).send({ message: error.message })
     }

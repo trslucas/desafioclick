@@ -8,6 +8,7 @@ import { InvalidResourceError } from './errors/invalid-resource-error'
 interface InsertStudentRoomUseCaseRequest {
   studentId: string
   ownerId: string
+  classId: string
 }
 
 interface InsertStudentRoomUseCaseResponse {
@@ -23,6 +24,7 @@ export class InsertUserInRoomUseCase {
   async execute({
     studentId,
     ownerId,
+    classId,
   }: InsertStudentRoomUseCaseRequest): Promise<InsertStudentRoomUseCaseResponse> {
     if (!ownerId) {
       throw new Error()
@@ -31,13 +33,14 @@ export class InsertUserInRoomUseCase {
     const insertRoomAvaiable = await this.classRepository.insertStudent(
       ownerId,
       studentId,
+      classId,
     )
 
     if (!insertRoomAvaiable) {
       throw new InvalidResourceError()
     }
 
-    const maxStudents = Number(insertRoomAvaiable?.students.length)
+    const maxStudents = Number(insertRoomAvaiable?.students?.length)
     const roomCapacity = Number(insertRoomAvaiable?.capacity)
 
     const exceedLimit = roomCapacity < maxStudents

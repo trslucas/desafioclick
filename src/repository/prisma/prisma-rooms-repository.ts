@@ -56,14 +56,15 @@ export class PrismaRoomsRepository implements RoomsRepository {
     })
   }
 
-  async insertStudent(ownerId: string, studentId: string) {
+  async insertStudent(ownerId: string, studentId: string, classId: string) {
     const room = await prisma.class.findMany({
       where: {
         teacher_id: ownerId,
+        id: classId,
       },
     })
 
-    const roomToFind = room.find((r) => r.teacher_id === ownerId)
+    const roomToFind = room.find((r) => r.teacher_id === ownerId && r.id)
 
     if (!roomToFind) {
       throw new InvalidResourceError()
@@ -74,7 +75,7 @@ export class PrismaRoomsRepository implements RoomsRepository {
         id: studentId,
         classes: {
           some: {
-            id: roomToFind.id,
+            id: classId,
           },
         },
       },
@@ -86,7 +87,7 @@ export class PrismaRoomsRepository implements RoomsRepository {
 
     const student = await prisma.class.update({
       where: {
-        id: roomToFind?.id,
+        id: classId,
       },
       data: {
         students: {

@@ -39,14 +39,10 @@ describe('Get Room Use Case', () => {
     })
 
     const { room } = await sut.execute({
-      userId: createdUser.id,
+      teacherId: createdUser.id,
     })
 
-    const roomMatched = room.filter(
-      (item) => item.teacher_id === createdUser.id,
-    )
-
-    expect(roomMatched).toHaveLength(2)
+    expect(room).toHaveLength(2)
     // expect(teacherRoom?.id).toEqual(expect.any(String))
     // expect(createdUser.id).toEqual(teacherRoom?.owner_id)
     // expect(createdUser.id).toEqual(createdRoom.owner_id)

@@ -36,6 +36,7 @@ export async function updateUser(request: FastifyRequest, reply: FastifyReply) {
       updatedUser,
     })
   } catch (error) {
+    console.log(error)
     if (error instanceof Error) {
       return reply.status(400).send({ message: error.message })
     }

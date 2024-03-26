@@ -1,39 +1,29 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 
 import { PrismaUsersRepository } from '../../../repository/prisma/prisma-users-repository'
+
 import { z } from 'zod'
 import { PrismaRoomsRepository } from '../../../repository/prisma/prisma-rooms-repository'
-import { InsertUserInRoomUseCase } from '../../../use-cases/insert-student-room-use-case'
+import { GetRoomUseCase } from '../../../use-cases/get-room-use-case'
 
-export async function insertStudent(
+export async function getRoomByTeacherId(
   request: FastifyRequest,
   reply: FastifyReply,
 ) {
   const usersRepository = new PrismaUsersRepository()
   const roomsRepository = new PrismaRoomsRepository()
-  const roomUseCase = new InsertUserInRoomUseCase(
-    usersRepository,
-    roomsRepository,
-  )
+  const getRoomUseCase = new GetRoomUseCase(usersRepository, roomsRepository)
 
   const registerSchema = z.object({
-    teacher_id: z.string(),
-    student_id: z.string(),
-    class_id: z.string(),
+    teacherId: z.string(),
   })
 
-  const { student_id, teacher_id, class_id } = registerSchema.parse(
-    request.body,
-  )
+  const { teacherId } = registerSchema.parse(request.params)
 
   try {
-    const { room } = await roomUseCase.execute({
-      ownerId: teacher_id,
-      studentId: student_id,
-      classId: class_id,
-    })
+    const { room } = await getRoomUseCase.execute({ teacherId })
 
-    reply.status(201).send({ room })
+    reply.status(200).send({ room })
   } catch (error) {
     console.log(error)
     if (error instanceof Error) {

@@ -42,11 +42,11 @@ export class InMemoryClassRepository implements RoomsRepository {
     return rooms
   }
 
-  async insertStudent(ownerId: string, userId: string) {
+  async insertStudent(ownerId: string, userId: string, classId: string) {
     if (!ownerId) {
       throw new Error()
     }
-    const room = this.rooms.find((item) => item.id === ownerId)
+    const room = this.rooms.find((item) => item.id === classId)
 
     // Adicione o userId à lista de alunos da sala de aula
     room?.students?.push({

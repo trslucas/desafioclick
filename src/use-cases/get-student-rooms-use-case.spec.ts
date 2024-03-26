@@ -46,9 +46,17 @@ describe('Get Room Use Case', () => {
       isAvaiable: true,
     })
 
-    await classRepository.insertStudent(studentClass1.id, student.id)
+    await classRepository.insertStudent(
+      studentClass1.teacher_id,
+      student.id,
+      studentClass1.id,
+    )
 
-    await classRepository.insertStudent(studentClass2.id, student.id)
+    await classRepository.insertStudent(
+      studentClass2.teacher_id,
+      student.id,
+      studentClass2.id,
+    )
 
     const { rooms } = await sut.execute({
       studentId: student.id,

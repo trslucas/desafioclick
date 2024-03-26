@@ -15,6 +15,7 @@ export async function getAllUsers(
 
     reply.status(201).send({ users })
   } catch (error) {
+    console.log(error)
     if (error instanceof Error) {
       if (error instanceof Error) {
         return reply.status(400).send({ message: error.message })

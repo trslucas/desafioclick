@@ -47,8 +47,16 @@ describe('Remove Student From ClassRoom User Use Case', () => {
       isAvaiable: true,
     })
 
-    await classRepository.insertStudent(classRoom.id, user1.id)
-    await classRepository.insertStudent(classRoom.id, user2.id)
+    await classRepository.insertStudent(
+      classRoom.teacher_id,
+      user1.id,
+      classRoom.id,
+    )
+    await classRepository.insertStudent(
+      classRoom.teacher_id,
+      user2.id,
+      classRoom.id,
+    )
 
     await sut.execute({
       studentId: user1.id,
