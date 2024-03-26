@@ -60,7 +60,8 @@ describe('Remove Student From ClassRoom User Use Case', () => {
 
     await sut.execute({
       studentId: user1.id,
-      ownerId: teacher.id,
+      ownerId: classRoom.teacher_id,
+      classId: classRoom.id,
     })
 
     const room = await classRepository.findById(teacher.id)

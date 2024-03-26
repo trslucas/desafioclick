@@ -60,14 +60,18 @@ export class InMemoryClassRepository implements RoomsRepository {
     return room
   }
 
-  async removeStudent(ownerId: string, studentId: string): Promise<void> {
+  async removeStudent(
+    ownerId: string,
+    studentId: string,
+    classId: string,
+  ): Promise<void> {
     if (!ownerId) {
       throw new Error('Invalid owner ID')
     }
 
     const room = this.rooms.find((item) => item.teacher_id === ownerId)
 
-    if (room?.teacher_id !== ownerId) {
+    if (room?.teacher_id !== ownerId && room?.id !== classId) {
       throw new Error('Unauthorized')
     }
 

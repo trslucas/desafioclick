@@ -5,6 +5,8 @@ import { InvalidUserError } from '../../use-cases/errors/invalid-user-id-error'
 import { RoomsRepository } from '../rooms-repository'
 import { UserAlreadyExistisError } from '../../use-cases/errors/user-already-exists-error'
 import { InvalidResourceError } from '../../use-cases/errors/invalid-resource-error'
+import { ExceededCapacityTypeError } from '../../use-cases/errors/max-capacity-error'
+import { count } from 'console'
 
 export class PrismaRoomsRepository implements RoomsRepository {
   async create(data: Prisma.ClassCreateInput) {
@@ -64,9 +66,32 @@ export class PrismaRoomsRepository implements RoomsRepository {
       },
     })
 
-    const roomToFind = room.find((r) => r.teacher_id === ownerId && r.id)
+    const roomToCheck = await this.findById(ownerId)
 
-    if (!roomToFind) {
+    const checkedRoom = roomToCheck.find((r) => r.id === classId)
+
+    const checkedRoomLenght = checkedRoom?.students.length
+
+    const checkedRoomCapacity = checkedRoom?.capacity
+
+    console.log(checkedRoomLenght, checkedRoomCapacity)
+
+    const isNotAvailable =
+      Number(checkedRoomLenght) >= Number(checkedRoomCapacity)
+
+    if (isNotAvailable) {
+      await prisma.class.update({
+        where: {
+          id: classId,
+        },
+        data: {
+          isAvaiable: false,
+        },
+      })
+      throw new ExceededCapacityTypeError()
+    }
+
+    if (!checkedRoom) {
       throw new InvalidResourceError()
     }
 
@@ -101,22 +126,30 @@ export class PrismaRoomsRepository implements RoomsRepository {
     return student
   }
 
-  async removeStudent(ownerId: string, studentId: string) {
-    const room = await prisma.class.findMany({
+  async removeStudent(ownerId: string, studentId: string, classId: string) {
+    const room = await prisma.class.findFirst({
       where: {
         teacher_id: ownerId,
+        id: classId,
       },
     })
 
-    const roomToFind = room.find((r) => r.teacher_id === ownerId)
-    await prisma.student.delete({
+    // Verifica se a sala de aula foi encontrada
+    if (!room) {
+      throw new InvalidResourceError()
+    }
+
+    // Remove o aluno apenas da sala de aula específica
+    await prisma.student.update({
       where: {
+        id: studentId,
+      },
+      data: {
         classes: {
-          some: {
-            id: roomToFind?.id,
+          disconnect: {
+            id: classId,
           },
         },
-        id: studentId,
       },
     })
   }

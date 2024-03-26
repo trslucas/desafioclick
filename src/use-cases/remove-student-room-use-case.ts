@@ -6,6 +6,7 @@ import { InvalidUserError } from './errors/invalid-user-id-error'
 interface RemoveStudentRoomUseCaseRequest {
   studentId: string
   ownerId: string
+  classId: string
 }
 
 export class RemoveStudentRoomUseCase {
@@ -17,13 +18,14 @@ export class RemoveStudentRoomUseCase {
   async execute({
     studentId,
     ownerId,
+    classId,
   }: RemoveStudentRoomUseCaseRequest): Promise<void> {
     const teacher = await this.usersRepository.findById(ownerId)
 
-    if (!teacher || teacher.user_type !== 'TEACHER') {
+    if (!teacher || teacher.user_type !== 'TEACHER' || !classId) {
       throw new InvalidUserError()
     }
 
-    await this.classRepository.removeStudent(teacher.id, studentId)
+    await this.classRepository.removeStudent(teacher.id, studentId, classId)
   }
 }

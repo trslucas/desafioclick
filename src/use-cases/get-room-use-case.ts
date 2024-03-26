@@ -56,8 +56,8 @@ export class GetRoomUseCase {
       const formattedRoom: FormattedRoom = {
         id: room.id,
         class_number: room.class_number,
-        capacity: room.capacity,
-        isAvaiable: room.isAvaiable,
+        capacity: room.capacity - formattedStudents.length,
+        isAvaiable: room.capacity > formattedStudents.length,
         teacher: teacher.name,
         students: formattedStudents,
       }

@@ -8,7 +8,11 @@ export interface RoomsRepository {
     studentId: string,
     classId: string,
   ): Promise<Class | null>
-  removeStudent(ownerId: string, studentId: string): Promise<void>
+  removeStudent(
+    ownerId: string,
+    studentId: string,
+    classId: string,
+  ): Promise<void>
   listStudentsByRoom(ownerId: string, classId: string): Promise<Class | null>
   deleteClassRoom(ownerId: string, classId: string): Promise<void>
   getClassRoomsByStudent(studentId: string): Promise<Class[] | null>
