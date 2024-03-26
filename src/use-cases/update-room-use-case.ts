@@ -1,6 +1,6 @@
 import { Class, Student } from '@prisma/client'
 import { UsersRepository } from '../repository/user-repository'
-import { ClassRepository } from '../repository/class-repository'
+import { RoomsRepository } from '../repository/rooms-repository'
 
 import { InvalidUserTypeError } from './errors/invalid-user-type-error'
 import { InvalidResourceError } from './errors/invalid-resource-error'
@@ -22,7 +22,7 @@ interface UpdateRoomUseCaseResponse {
 export class UpdateRoomUseCase {
   constructor(
     private usersRepository: UsersRepository,
-    private classRepository: ClassRepository,
+    private classRepository: RoomsRepository,
   ) {}
 
   async execute({
@@ -40,11 +40,15 @@ export class UpdateRoomUseCase {
       throw new InvalidUserTypeError()
     }
 
-    const room = await this.classRepository.findById(ownerId)
+    const rooms = await this.classRepository.findById(ownerId)
 
-    const classRoomToFind = room?.find(
-      (room) => room.owner_id === ownerId && room.id === classId,
-    )
+    if (!rooms) {
+      throw new InvalidResourceError()
+    }
+
+    const classRoomToFind = rooms.find((room) => room.teacher_id === ownerId)
+
+    const studentId = classRoomToFind?.studentId
 
     if (!classRoomToFind) {
       throw new InvalidResourceError()
@@ -58,6 +62,11 @@ export class UpdateRoomUseCase {
         class_number,
         id,
         isAvaiable,
+        Student: {
+          connect: {
+            id: studentId as string,
+          },
+        },
         students,
       },
     )

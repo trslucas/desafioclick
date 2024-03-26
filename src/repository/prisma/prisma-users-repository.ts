@@ -12,7 +12,7 @@ export class PrismaUsersRepository implements UsersRepository {
     if (user.user_type === 'STUDENT') {
       await prisma.student.create({
         data: {
-          userId: user.id,
+          id: user.id,
         },
       })
     }
@@ -20,7 +20,7 @@ export class PrismaUsersRepository implements UsersRepository {
     if (user.user_type === 'TEACHER') {
       await prisma.teacher.create({
         data: {
-          userId: user.id,
+          id: user.id,
         },
       })
     }

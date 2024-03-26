@@ -1,4 +1,4 @@
-import { ClassRepository } from '../repository/class-repository'
+import { RoomsRepository } from '../repository/rooms-repository'
 import { UsersRepository } from '../repository/user-repository'
 import { InvalidResourceError } from './errors/invalid-resource-error'
 import { InvalidUserError } from './errors/invalid-user-id-error'
@@ -11,7 +11,7 @@ interface DeleteClassRoomUseCaseRequest {
 export class DeleteClassRoomUseCase {
   constructor(
     private usersRepository: UsersRepository,
-    private classRepository: ClassRepository,
+    private classRepository: RoomsRepository,
   ) {}
 
   async execute({
@@ -25,7 +25,7 @@ export class DeleteClassRoomUseCase {
     }
     const room = await this.classRepository.findById(teacher.id)
 
-    const teacherRoom = room?.find((room) => room.owner_id === teacher.id)
+    const teacherRoom = room?.find((room) => room.teacher_id === teacher.id)
 
     if (teacherRoom?.id !== classId) {
       throw new InvalidResourceError()

@@ -1,4 +1,4 @@
-import { InMemoryClassRepository } from '../repository/in-memory/in-memory-class-repository'
+import { InMemoryClassRepository } from '../repository/in-memory/in-memory-rooms-repository'
 import { InMemoryUsersRepository } from '../repository/in-memory/in-memory-users-repository'
 import { CreateRoomUseCase } from './create-room-use-case'
 
@@ -28,14 +28,14 @@ describe('Create Room Use Case', () => {
     }
 
     const { room } = await sut.execute({
-      owner_id: user.id,
+      teacher_id: user.id,
       capacity: 20,
       class_number: 101,
       isAvaiable: true,
     })
 
     expect(room.id).toEqual(expect.any(String))
-    expect(room.owner_id).toEqual(user.id)
+    expect(room.teacher_id).toEqual(user.id)
     expect(user.user_type).toEqual('TEACHER')
   })
 })

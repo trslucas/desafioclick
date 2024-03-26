@@ -4,7 +4,6 @@ import { PrismaUsersRepository } from '../../../repository/prisma/prisma-users-r
 
 import { GetUserUseCase } from '../../../use-cases/get-user-use-case'
 import { z } from 'zod'
-import { InvalidUserError } from '../../../use-cases/errors/invalid-user-id-error'
 
 export async function getUserById(
   request: FastifyRequest,
@@ -24,7 +23,7 @@ export async function getUserById(
 
     reply.status(200).send({ user })
   } catch (error) {
-    if (error instanceof InvalidUserError) {
+    if (error instanceof Error) {
       return reply.status(400).send({ message: error.message })
     }
   }

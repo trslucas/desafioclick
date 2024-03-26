@@ -1,13 +1,12 @@
 import { Class } from '@prisma/client'
 import { UsersRepository } from '../repository/user-repository'
-
-import { ClassRepository } from '../repository/class-repository'
+import { RoomsRepository } from '../repository/rooms-repository'
 
 interface CreateRoomUseCaseRequest {
   class_number: number
   capacity: number
   isAvaiable: boolean
-  owner_id: string
+  teacher_id: string
 }
 
 interface CreateRoomUseCaseResponse {
@@ -17,23 +16,27 @@ interface CreateRoomUseCaseResponse {
 export class CreateRoomUseCase {
   constructor(
     private usersRepository: UsersRepository,
-    private classRepository: ClassRepository,
+    private classRepository: RoomsRepository,
   ) {}
 
   async execute({
     class_number,
     capacity,
     isAvaiable,
-    owner_id,
+    teacher_id,
   }: CreateRoomUseCaseRequest): Promise<CreateRoomUseCaseResponse> {
-    const user = await this.usersRepository.findById(owner_id)
+    const user = await this.usersRepository.findById(teacher_id)
 
     if (!user || user.user_type !== 'TEACHER') {
       throw new Error()
     }
 
+    const teacher = {
+      connect: { id: teacher_id }, // Substitua teacherId pelo ID do professor
+    }
+
     const room = await this.classRepository.create({
-      owner_id,
+      teacher,
       capacity,
       class_number,
       isAvaiable,

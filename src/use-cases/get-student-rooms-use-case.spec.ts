@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 
 import { InMemoryUsersRepository } from '../repository/in-memory/in-memory-users-repository'
-import { InMemoryClassRepository } from '../repository/in-memory/in-memory-class-repository'
+import { InMemoryClassRepository } from '../repository/in-memory/in-memory-rooms-repository'
 import { GetStudentRoomsUseCase } from './get-student-rooms-use-case'
 
 let usersRepository: InMemoryUsersRepository
@@ -33,14 +33,14 @@ describe('Get Room Use Case', () => {
     })
 
     const studentClass1 = await classRepository.create({
-      owner_id: teacher.id,
+      teacher: { connect: { id: teacher.id } },
       capacity: 20,
       class_number: 201,
       isAvaiable: true,
     })
 
     const studentClass2 = await classRepository.create({
-      owner_id: teacher.id,
+      teacher: { connect: { id: teacher.id } },
       capacity: 10,
       class_number: 402,
       isAvaiable: true,

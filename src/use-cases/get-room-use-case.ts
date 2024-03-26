@@ -1,7 +1,7 @@
 import { Class } from '@prisma/client'
 import { UsersRepository } from '../repository/user-repository'
 import { InvalidUserError } from './errors/invalid-user-id-error'
-import { ClassRepository } from '../repository/class-repository'
+import { RoomsRepository } from '../repository/rooms-repository'
 
 interface GetRoomUseCaseRequest {
   userId: string
@@ -14,7 +14,7 @@ interface GetRoomUseCaseResponse {
 export class GetRoomUseCase {
   constructor(
     private usersRepository: UsersRepository,
-    private classRepository: ClassRepository,
+    private classRepository: RoomsRepository,
   ) {}
 
   async execute({

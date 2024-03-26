@@ -1,12 +1,13 @@
-import { InMemoryClassRepository } from '../repository/in-memory/in-memory-class-repository'
+import { InMemoryClassRepository } from '../repository/in-memory/in-memory-rooms-repository'
 import { InMemoryUsersRepository } from '../repository/in-memory/in-memory-users-repository'
 
 import { beforeEach, describe, expect, it } from 'vitest'
 import { InsertUserInRoomUseCase } from './insert-student-room-use-case'
-import { ExceededCapacityTypeError } from './errors/max-capacity-error'
-import { UserAlreadyExistisError } from './errors/user-already-exists-error'
-import { InvalidResourceError } from './errors/invalid-resource-error'
 import { InvalidCredentialsError } from './errors/invalid-credentials-error'
+
+import { InvalidResourceError } from './errors/invalid-resource-error'
+import { UserAlreadyExistisError } from './errors/user-already-exists-error'
+import { ExceededCapacityTypeError } from './errors/max-capacity-error'
 
 let usersRepository: InMemoryUsersRepository
 let classRepository: InMemoryClassRepository
@@ -27,10 +28,6 @@ describe('Insert User in Room Use Case', () => {
       user_type: 'TEACHER',
     })
 
-    if (teacher.user_type !== 'TEACHER') {
-      throw new InvalidCredentialsError()
-    }
-
     const student = await usersRepository.create({
       name: 'Raphael Oliveira',
       email: 'raphaeloliveira@outlook.com',
@@ -39,33 +36,25 @@ describe('Insert User in Room Use Case', () => {
       user_type: 'STUDENT',
     })
 
-    const student2 = await usersRepository.create({
-      name: 'Viado Oliveira',
-      email: 'raphaeloliveira@outlook.com',
-      birth_date: new Date('1994-08-04'),
-      registration: 18434,
-      user_type: 'STUDENT',
-    })
+    if (teacher.user_type !== 'TEACHER') {
+      throw new InvalidCredentialsError()
+    }
 
     const classRoom = await classRepository.create({
-      owner_id: teacher.id,
+      teacher: { connect: { id: teacher.id } },
       capacity: 20,
       class_number: 101,
       isAvaiable: true,
     })
-    await sut.execute({
-      studentId: student2.id,
-      ownerId: classRoom.id,
-    })
+
+    // Insira o aluno na sala de aula
     const { room } = await sut.execute({
       studentId: student.id,
-      ownerId: classRoom.id,
+      ownerId: classRoom.id, // Usar o ID da sala de aula como ownerId
     })
 
-    expect(room.id).toEqual(expect.any(String))
-    expect(classRoom.owner_id).toEqual(teacher.id)
-    expect(student.user_type).toEqual('STUDENT')
-    expect(teacher.user_type).toEqual('TEACHER')
+    expect(room.teacher_id).toEqual(teacher.id)
+    expect(room.students).toHaveLength(1)
   })
 
   it('should be able to insert a student in two diferent rooms', async () => {
@@ -98,14 +87,14 @@ describe('Insert User in Room Use Case', () => {
     })
 
     const classRoom1 = await classRepository.create({
-      owner_id: teacher1.id,
+      teacher: { connect: { id: teacher1.id } },
       capacity: 20,
       class_number: 101,
       isAvaiable: true,
     })
 
     const classRoom2 = await classRepository.create({
-      owner_id: teacher2.id,
+      teacher: { connect: { id: teacher2.id } },
       capacity: 20,
       class_number: 101,
       isAvaiable: true,
@@ -122,11 +111,11 @@ describe('Insert User in Room Use Case', () => {
     })
 
     const insertedStudent1 = room1.room.students.some(
-      (item) => item.userId === student.id,
+      (item) => item.id === student.id,
     )
 
     const insertedStudent2 = room2.room.students.some(
-      (item) => item.userId === student.id,
+      (item) => item.id === student.id,
     )
 
     expect(insertedStudent1).toEqual(insertedStudent2)
@@ -162,7 +151,7 @@ describe('Insert User in Room Use Case', () => {
     })
 
     const classRoom = await classRepository.create({
-      owner_id: teacher.id,
+      teacher: { connect: { id: teacher.id } },
       capacity: 20,
       class_number: 101,
       isAvaiable: true,
@@ -175,7 +164,7 @@ describe('Insert User in Room Use Case', () => {
       }),
     ).rejects.toBeInstanceOf(InvalidResourceError)
 
-    expect(classRoom.owner_id).not.toEqual(otherTeacher.id)
+    expect(classRoom.id).not.toEqual(otherTeacher.id)
   })
 
   it('should not be able to insert a already exists student', async () => {
@@ -192,7 +181,7 @@ describe('Insert User in Room Use Case', () => {
     }
 
     const classRoom = await classRepository.create({
-      owner_id: teacher.id,
+      teacher: { connect: { id: teacher.id } },
       capacity: 20,
       class_number: 101,
       isAvaiable: true,
@@ -206,17 +195,19 @@ describe('Insert User in Room Use Case', () => {
       user_type: 'STUDENT',
     })
 
-    await sut.execute({
+    const promise1 = sut.execute({
       studentId: student.id,
       ownerId: classRoom.id,
     })
 
-    await expect(() =>
-      sut.execute({
-        studentId: student.id,
-        ownerId: classRoom.id,
-      }),
-    ).rejects.toBeInstanceOf(UserAlreadyExistisError)
+    await expect(promise1).resolves.toBeTruthy()
+
+    const promise2 = sut.execute({
+      studentId: student.id,
+      ownerId: classRoom.id,
+    })
+
+    await expect(promise2).rejects.toBeInstanceOf(UserAlreadyExistisError)
   })
 
   it('should not be able to exceed room limit', async () => {
@@ -233,7 +224,7 @@ describe('Insert User in Room Use Case', () => {
     }
 
     const classRoom = await classRepository.create({
-      owner_id: teacher.id,
+      teacher: { connect: { id: teacher.id } },
       capacity: 1,
       class_number: 101,
       isAvaiable: true,

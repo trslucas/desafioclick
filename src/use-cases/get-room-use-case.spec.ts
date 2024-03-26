@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 
 import { InMemoryUsersRepository } from '../repository/in-memory/in-memory-users-repository'
-import { InMemoryClassRepository } from '../repository/in-memory/in-memory-class-repository'
+import { InMemoryClassRepository } from '../repository/in-memory/in-memory-rooms-repository'
 import { GetRoomUseCase } from './get-room-use-case'
 
 let usersRepository: InMemoryUsersRepository
@@ -25,14 +25,14 @@ describe('Get Room Use Case', () => {
     })
 
     await classRepository.create({
-      owner_id: createdUser.id,
+      teacher: { connect: { id: createdUser.id } },
       capacity: 20,
       class_number: 201,
       isAvaiable: true,
     })
 
     await classRepository.create({
-      owner_id: createdUser.id,
+      teacher: { connect: { id: createdUser.id } },
       capacity: 10,
       class_number: 101,
       isAvaiable: true,
@@ -42,7 +42,9 @@ describe('Get Room Use Case', () => {
       userId: createdUser.id,
     })
 
-    const roomMatched = room.filter((item) => item.owner_id === createdUser.id)
+    const roomMatched = room.filter(
+      (item) => item.teacher_id === createdUser.id,
+    )
 
     expect(roomMatched).toHaveLength(2)
     // expect(teacherRoom?.id).toEqual(expect.any(String))

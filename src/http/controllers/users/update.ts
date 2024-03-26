@@ -2,7 +2,6 @@ import { FastifyReply, FastifyRequest } from 'fastify'
 import { PrismaUsersRepository } from '../../../repository/prisma/prisma-users-repository'
 import { UpdateUserUseCase } from '../../../use-cases/update-user-use-case'
 import { z } from 'zod'
-import { InvalidUserError } from '../../../use-cases/errors/invalid-user-id-error'
 
 export async function updateUser(request: FastifyRequest, reply: FastifyReply) {
   const usersRepository = new PrismaUsersRepository()
@@ -37,10 +36,8 @@ export async function updateUser(request: FastifyRequest, reply: FastifyReply) {
       updatedUser,
     })
   } catch (error) {
-    if (error instanceof InvalidUserError) {
-      return reply.status(500).send({
-        message: error.message,
-      })
+    if (error instanceof Error) {
+      return reply.status(400).send({ message: error.message })
     }
   }
 }

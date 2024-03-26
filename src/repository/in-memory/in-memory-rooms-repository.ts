@@ -1,14 +1,14 @@
 import { Class, Prisma } from '@prisma/client'
-import { ClassRepository } from '../class-repository'
 import { randomUUID } from 'crypto'
 import { InvalidUserError } from '../../use-cases/errors/invalid-user-id-error'
 import { InvalidResourceError } from '../../use-cases/errors/invalid-resource-error'
+import { RoomsRepository } from '../rooms-repository'
 
-export class InMemoryClassRepository implements ClassRepository {
+export class InMemoryClassRepository implements RoomsRepository {
   public rooms: Class[] = []
   async create(data: Prisma.ClassCreateInput) {
-    if (!data.owner_id) {
-      throw new Error()
+    if (!data.teacher || !data.teacher.connect || !data.teacher.connect.id) {
+      throw new Error('O ID do professor não foi fornecido.')
     }
 
     const room = {
@@ -16,7 +16,8 @@ export class InMemoryClassRepository implements ClassRepository {
       class_number: data.class_number,
       capacity: data.capacity,
       isAvaiable: data.isAvaiable,
-      owner_id: data.owner_id,
+      teacher_id: data.teacher.connect.id,
+      studentId: null,
       students: [],
     }
 
@@ -32,7 +33,7 @@ export class InMemoryClassRepository implements ClassRepository {
       throw new InvalidUserError()
     }
 
-    const rooms = this.rooms.filter((item) => item.owner_id === userId)
+    const rooms = this.rooms.filter((item) => item.teacher_id === userId)
 
     if (!rooms.length) {
       return null // ou pode retornar um array vazio [] se preferir
@@ -47,10 +48,9 @@ export class InMemoryClassRepository implements ClassRepository {
     }
     const room = this.rooms.find((item) => item.id === ownerId)
 
-    room?.students.push({
-      userId,
+    // Adicione o userId à lista de alunos da sala de aula
+    room?.students?.push({
       id: userId,
-      classId: room.id,
     })
 
     if (!room) {
@@ -65,9 +65,9 @@ export class InMemoryClassRepository implements ClassRepository {
       throw new Error('Invalid owner ID')
     }
 
-    const room = this.rooms.find((item) => item.owner_id === ownerId)
+    const room = this.rooms.find((item) => item.teacher_id === ownerId)
 
-    if (room?.owner_id !== ownerId) {
+    if (room?.teacher_id !== ownerId) {
       throw new Error('Unauthorized')
     }
 
@@ -84,7 +84,7 @@ export class InMemoryClassRepository implements ClassRepository {
 
   async listStudentsByRoom(ownerId: string, classId: string) {
     const room = this.rooms.find(
-      (item) => item.owner_id === ownerId && item.id === classId,
+      (item) => item.teacher_id === ownerId && item.id === classId,
     )
 
     if (!room) {
@@ -95,13 +95,13 @@ export class InMemoryClassRepository implements ClassRepository {
   }
 
   async deleteClassRoom(ownerId: string, classId: string): Promise<void> {
-    const room = this.rooms.find((item) => item.owner_id === ownerId)
+    const room = this.rooms.find((item) => item.teacher_id === ownerId)
 
-    if (room?.owner_id !== ownerId) {
+    if (room?.teacher_id !== ownerId) {
       throw new Error('Unauthorized')
     }
     const roomIndex = this.rooms.findIndex(
-      (room) => room.id === classId && room.owner_id === ownerId,
+      (room) => room.id === classId && room.teacher_id === ownerId,
     )
 
     if (roomIndex === -1) {
@@ -128,32 +128,40 @@ export class InMemoryClassRepository implements ClassRepository {
     classId: string,
     data: Prisma.ClassUpdateInput,
   ) {
-    if (!ownerId && classId) {
+    // Verifique se ownerId e classId estão definidos
+    if (!ownerId || !classId) {
       throw new InvalidResourceError()
     }
 
-    const roomToUpdate = this.rooms.findIndex(
-      (room) => room.owner_id === ownerId && room.id === classId,
+    // Encontre o índice da sala na matriz de salas
+    const roomToUpdateIndex = this.rooms.findIndex(
+      (room) => room.teacher_id === ownerId && room.id === classId,
     )
 
-    if (roomToUpdate === -1) {
+    // Se a sala não for encontrada, lance um erro
+    if (roomToUpdateIndex === -1) {
       throw new InvalidResourceError()
     }
 
-    const currentRoom = this.rooms[roomToUpdate]
+    // Obtenha a sala a ser atualizada
+    const currentRoom = this.rooms[roomToUpdateIndex]
 
+    // Atualize os campos da sala com base nos dados fornecidos
     const updatedRoomData: Class = {
       ...currentRoom,
-      id: classId,
-      owner_id: ownerId,
       class_number: (data.class_number as number) ?? currentRoom.class_number,
-      capacity: (data?.capacity as number) ?? currentRoom.capacity,
-      isAvaiable: (data?.isAvaiable as boolean) ?? currentRoom.isAvaiable,
+      capacity: (data.capacity as number) ?? currentRoom.capacity,
+      isAvaiable: (data.isAvaiable as boolean) ?? currentRoom.isAvaiable,
+      // Certifique-se de verificar se `teacher` está definido antes de acessá-lo
+      teacher_id:
+        (data.teacher?.connect?.id as string) ?? currentRoom.teacher_id,
       students: currentRoom.students,
     }
 
-    this.rooms[roomToUpdate] = updatedRoomData
+    // Atualize a sala na matriz de salas
+    this.rooms[roomToUpdateIndex] = updatedRoomData
 
+    // Retorne a sala atualizada
     return updatedRoomData
   }
 }

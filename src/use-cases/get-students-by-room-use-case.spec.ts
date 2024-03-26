@@ -1,4 +1,4 @@
-import { InMemoryClassRepository } from '../repository/in-memory/in-memory-class-repository'
+import { InMemoryClassRepository } from '../repository/in-memory/in-memory-rooms-repository'
 import { InMemoryUsersRepository } from '../repository/in-memory/in-memory-users-repository'
 
 import { beforeEach, describe, expect, it } from 'vitest'
@@ -45,7 +45,7 @@ describe('Get All Students By Room Use Case', () => {
     })
 
     const classRoom = await classRepository.create({
-      owner_id: teacher.id,
+      teacher: { connect: { id: teacher.id } },
       capacity: 20,
       class_number: 101,
       isAvaiable: true,
@@ -56,11 +56,11 @@ describe('Get All Students By Room Use Case', () => {
     await classRepository.insertStudent(classRoom.id, student2.id)
     const { room } = await sut.execute({
       classId: classRoom.id,
-      ownerId: classRoom.owner_id,
+      ownerId: classRoom.teacher_id,
     })
 
     expect(room.students).toHaveLength(2)
-    expect(room.students[0].userId).toEqual(student.id)
-    expect(room.students[1].userId).toEqual(student2.id)
+    expect(room.students[0].id).toEqual(student.id)
+    expect(room.students[1].id).toEqual(student2.id)
   })
 })

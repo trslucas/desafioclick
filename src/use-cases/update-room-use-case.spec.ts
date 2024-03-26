@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 
 import { InMemoryUsersRepository } from '../repository/in-memory/in-memory-users-repository'
 
-import { InMemoryClassRepository } from '../repository/in-memory/in-memory-class-repository'
+import { InMemoryClassRepository } from '../repository/in-memory/in-memory-rooms-repository'
 import { UpdateRoomUseCase } from './update-room-use-case'
 
 let usersRepository: InMemoryUsersRepository
@@ -26,7 +26,7 @@ describe('Update Room Use Case', () => {
     })
 
     const classRoom = await classRepository.create({
-      owner_id: teacher.id,
+      teacher: { connect: { id: teacher.id } },
       capacity: 20,
       class_number: 101,
       isAvaiable: true,

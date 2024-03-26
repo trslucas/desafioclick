@@ -1,4 +1,4 @@
-import { ClassRepository } from '../repository/class-repository'
+import { RoomsRepository } from '../repository/rooms-repository'
 
 import { UsersRepository } from '../repository/user-repository'
 import { InvalidUserError } from './errors/invalid-user-id-error'
@@ -11,7 +11,7 @@ interface RemoveStudentRoomUseCaseRequest {
 export class RemoveStudentRoomUseCase {
   constructor(
     private usersRepository: UsersRepository,
-    private classRepository: ClassRepository,
+    private classRepository: RoomsRepository,
   ) {}
 
   async execute({
