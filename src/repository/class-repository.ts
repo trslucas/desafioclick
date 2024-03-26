@@ -8,4 +8,9 @@ export interface ClassRepository {
   listStudentsByRoom(ownerId: string, classId: string): Promise<Class | null>
   deleteClassRoom(ownerId: string, classId: string): Promise<void>
   getClassRoomsByStudent(studentId: string): Promise<Class[] | null>
+  updateRoom(
+    ownerId: string,
+    classId: string,
+    data: Prisma.ClassUpdateInput,
+  ): Promise<Class>
 }

@@ -39,20 +39,11 @@ export class InMemoryUsersRepository implements UsersRepository {
     const updatedUser: User = {
       ...currentUser,
       id: userId,
-      name: data.name === 'string' ? data.name : currentUser.name,
-      email: typeof data.email === 'string' ? data.email : currentUser.email,
-      registration:
-        typeof data.registration === 'number'
-          ? data.registration
-          : currentUser.registration,
-      birth_date:
-        data.birth_date instanceof Date
-          ? data.birth_date
-          : currentUser.birth_date,
-      user_type:
-        typeof data.user_type === 'string'
-          ? (data.user_type as UserType)
-          : currentUser.user_type,
+      name: (data.name as string) ?? currentUser.name,
+      email: (data.email as string) ?? currentUser.email,
+      registration: (data.registration as number) ?? currentUser.registration,
+      birth_date: (data.birth_date as Date) ?? currentUser.birth_date,
+      user_type: (data.user_type as UserType) ?? currentUser.user_type,
       created_at: currentUser.created_at,
     }
 

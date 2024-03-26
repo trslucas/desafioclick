@@ -2,6 +2,7 @@ import { Class, Prisma } from '@prisma/client'
 import { ClassRepository } from '../class-repository'
 import { randomUUID } from 'crypto'
 import { InvalidUserError } from '../../use-cases/errors/invalid-user-id-error'
+import { InvalidResourceError } from '../../use-cases/errors/invalid-resource-error'
 
 export class InMemoryClassRepository implements ClassRepository {
   public rooms: Class[] = []
@@ -120,5 +121,39 @@ export class InMemoryClassRepository implements ClassRepository {
     }
 
     return studentRooms
+  }
+
+  async updateRoom(
+    ownerId: string,
+    classId: string,
+    data: Prisma.ClassUpdateInput,
+  ) {
+    if (!ownerId && classId) {
+      throw new InvalidResourceError()
+    }
+
+    const roomToUpdate = this.rooms.findIndex(
+      (room) => room.owner_id === ownerId && room.id === classId,
+    )
+
+    if (roomToUpdate === -1) {
+      throw new InvalidResourceError()
+    }
+
+    const currentRoom = this.rooms[roomToUpdate]
+
+    const updatedRoomData: Class = {
+      ...currentRoom,
+      id: classId,
+      owner_id: ownerId,
+      class_number: (data.class_number as number) ?? currentRoom.class_number,
+      capacity: (data?.capacity as number) ?? currentRoom.capacity,
+      isAvaiable: (data?.isAvaiable as boolean) ?? currentRoom.isAvaiable,
+      students: currentRoom.students,
+    }
+
+    this.rooms[roomToUpdate] = updatedRoomData
+
+    return updatedRoomData
   }
 }
