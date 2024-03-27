@@ -1,6 +1,7 @@
 import { UsersRepository } from '../repository/user-repository'
 import { InvalidUserError } from './errors/invalid-user-id-error'
 import { RoomsRepository } from '../repository/rooms-repository'
+import { InvalidResourceError } from './errors/invalid-resource-error'
 
 interface FormattedStudent {
   id: string
@@ -40,7 +41,7 @@ export class GetRoomUseCase {
     const rooms = await this.classRepository.findById(teacher.id)
 
     if (!rooms || rooms.length === 0) {
-      throw new InvalidUserError()
+      throw new InvalidResourceError()
     }
 
     const formattedRooms: FormattedRoom[] = []

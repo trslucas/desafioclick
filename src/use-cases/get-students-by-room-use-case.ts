@@ -2,6 +2,7 @@ import { Class } from '@prisma/client'
 import { UsersRepository } from '../repository/user-repository'
 import { RoomsRepository } from '../repository/rooms-repository'
 import { InvalidUserError } from './errors/invalid-user-id-error'
+import { InvalidResourceError } from './errors/invalid-resource-error'
 
 interface GetStudentsByRoomUseCaseRequest {
   ownerId: string
@@ -33,7 +34,7 @@ export class GetStudentsByRoomUseCase {
     )
 
     if (!room) {
-      throw new Error()
+      throw new InvalidResourceError()
     }
 
     return {

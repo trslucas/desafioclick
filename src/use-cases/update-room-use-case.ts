@@ -1,4 +1,4 @@
-import { Class, Student } from '@prisma/client'
+import { Class, Prisma } from '@prisma/client'
 import { UsersRepository } from '../repository/user-repository'
 import { RoomsRepository } from '../repository/rooms-repository'
 
@@ -12,7 +12,11 @@ interface UpdateRoomUseCaseRequest {
   class_number?: number
   capacity?: number
   isAvaiable?: boolean
-  students?: Student[]
+  students?:
+    | {
+        id: string // Alterado para garantir que tenha um ID
+      }[]
+    | null
 }
 
 interface UpdateRoomUseCaseResponse {
@@ -48,31 +52,31 @@ export class UpdateRoomUseCase {
 
     const classRoomToFind = rooms.find((room) => room.teacher_id === ownerId)
 
-    const studentId = classRoomToFind?.studentId
-
     if (!classRoomToFind) {
       throw new InvalidResourceError()
+    }
+
+    const updateData: Prisma.ClassUpdateInput = {
+      capacity,
+      class_number,
+      id,
+      isAvaiable,
+    }
+
+    if (students) {
+      updateData.students = {
+        connect: students.map((student) => ({ id: student.id })),
+      }
+    } else {
+      updateData.students = undefined
     }
 
     const updateDroom = await this.classRepository.updateRoom(
       ownerId,
       classId,
-      {
-        capacity,
-        class_number,
-        id,
-        isAvaiable,
-        Student: {
-          connect: {
-            id: studentId as string,
-          },
-        },
-        students,
-      },
+      updateData,
     )
 
-    return {
-      room: updateDroom,
-    }
+    return { room: updateDroom }
   }
 }

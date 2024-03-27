@@ -6,7 +6,6 @@ import { RoomsRepository } from '../rooms-repository'
 import { UserAlreadyExistisError } from '../../use-cases/errors/user-already-exists-error'
 import { InvalidResourceError } from '../../use-cases/errors/invalid-resource-error'
 import { ExceededCapacityTypeError } from '../../use-cases/errors/max-capacity-error'
-import { count } from 'console'
 
 export class PrismaRoomsRepository implements RoomsRepository {
   async create(data: Prisma.ClassCreateInput) {
@@ -59,7 +58,7 @@ export class PrismaRoomsRepository implements RoomsRepository {
   }
 
   async insertStudent(ownerId: string, studentId: string, classId: string) {
-    const room = await prisma.class.findMany({
+    await prisma.class.findMany({
       where: {
         teacher_id: ownerId,
         id: classId,
@@ -159,6 +158,9 @@ export class PrismaRoomsRepository implements RoomsRepository {
       where: {
         teacher_id: ownerId,
         id: classId,
+      },
+      include: {
+        students: true,
       },
     })
 
